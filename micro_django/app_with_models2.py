@@ -2,9 +2,8 @@
 
 import os
 import sys
-import __main__
 
-from django.conf import settings, empty
+from django.conf import settings
 from django.conf.urls import url
 from django.core.wsgi import get_wsgi_application
 from django.http import JsonResponse
@@ -37,25 +36,25 @@ DATABASES = {
     }
 }
 
-settings._wrapped = empty
-settings.configure(
-    DEBUG=DEBUG,
-    SECRET_KEY=SECRET_KEY,
-    ALLOWED_HOSTS=ALLOWED_HOSTS,
-    ROOT_URLCONF=__name__,
-    DATABASES=DATABASES,
-    MIGRATION_MODULES={APP_LABEL: 'migrations'},
-    INSTALLED_APPS=(
-        'django.contrib.sessions',
-        '__main__.app',
-    ),
-    MIDDLEWARE_CLASSES=(
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    ),
-)
+if not settings.configured:
+    settings.configure(
+        DEBUG=DEBUG,
+        SECRET_KEY=SECRET_KEY,
+        ALLOWED_HOSTS=ALLOWED_HOSTS,
+        ROOT_URLCONF=__name__,
+        DATABASES=DATABASES,
+        MIGRATION_MODULES={APP_LABEL: 'migrations'},
+        INSTALLED_APPS=(
+            'django.contrib.sessions',
+            '__main__.app',
+        ),
+        MIDDLEWARE_CLASSES=(
+            'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.middleware.common.CommonMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        ),
+    )
 
 
 class Book(models.Model):

@@ -4,7 +4,7 @@ import os
 import sys
 
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotAllowed, Http404
 from django.conf.urls import url
 from django.core.wsgi import get_wsgi_application
 
@@ -44,7 +44,7 @@ db = peewee.SqliteDatabase('tasks.db')
 class Task(peewee.Model):
     title = peewee.CharField()
     body = peewee.TextField()
-    birthday = peewee.DateField()
+    session_id = peewee.CharField()
     is_active = peewee.BooleanField(default=True)
 
     class Meta:
@@ -70,13 +70,36 @@ def create_tables():
     db.create_tables([Task])
 
 
-def test(request):
-    request.session
-    return JsonResponse({'pass': 'pass'})
+def _all(request):
+    tasks = Task.select().where(Task.session_id == request.session.session_key)
+    return JsonResponse({task.id: {'body': task.body, 'title': task.title, 'active': task.is_active} for task in tasks})
+
+
+def add(request):
+    if request.POST:
+        task = Task.create(
+            title=request.POST.get('title'),  # Never do shit like this
+            body=request.POST.get('body'),
+            session_id=request.session.session_key,
+        )
+        task.save()
+        return JsonResponse({'success': 'ok'})
+    return HttpResponseNotAllowed([])
+
+
+def detail(request, id):
+    try:
+        task = Task.select().where(Task.id == id).where(Task.session_id == request.session.session_key).get()
+    except peewee.DoesNotExist:
+        raise Http404
+    return JsonResponse({'body': task.body, 'title': task.title, 'active': task.is_active})
+
 
 urlpatterns = (
     url(r'^$', lambda r: JsonResponse({'App': 'peewee'})),
-    url(r'^test/$', test),
+    url(r'^tasks/$', _all),
+    url(r'^tasks/add/$', add),
+    url(r'^tasks/(?P<id>\d+)/$', detail),
 )
 
 

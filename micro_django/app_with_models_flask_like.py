@@ -2,23 +2,63 @@
 
 import os
 import sys
+from collections import OrderedDict
+from functools import partial
 
 from django.conf import settings
 from django.conf.urls import url
 from django.core.wsgi import get_wsgi_application
 from django.http import JsonResponse, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_http_methods
 from django.db import models
 from django.apps.config import AppConfig
 
 APP_LABEL = 'my_app'
 
 
+class cached_classproperty(object):
+    def __init__(self, method):
+        self.method = method
+        self.cache = None
+
+    def __get__(self, obj, owner):
+        if self.cache is None:
+            self.cache = self.method(owner)
+        return self.cache
+
+
 class app(AppConfig):
     name = '__main__'
     verbose_name = 'Main'
     label = APP_LABEL
+    _urlpatterns = OrderedDict()
 
+    do_not_call_in_templates = True
+
+    @cached_classproperty
+    def urlpatterns(cls):
+        res = []
+        for pattern, methods in cls._urlpatterns.items():
+
+            def view(_methods, request, *args, **kwargs):
+                return _methods[request.method]['view'](request, *args, **kwargs)
+
+            view = require_http_methods(methods.keys())(partial(view, methods))
+            res.append(url(pattern, view))
+        return res
+
+    @classmethod
+    def add(cls, regex, view, name=None, method='get'):
+        cls._urlpatterns.setdefault(regex, {})[method.upper()] = {'name': name, 'view': view}
+
+    @classmethod
+    def route(cls, regex, name=None, methods=('GET', 'POST')):
+        def decor(view):
+            for method in methods:
+                cls.add(regex, view, name, method)
+            return view
+        return decor
 
 DEBUG = os.environ.get('DEBUG', 'on') == 'on'
 
@@ -38,7 +78,7 @@ if not settings.configured:
         DEBUG=DEBUG,
         SECRET_KEY=SECRET_KEY,
         ALLOWED_HOSTS=ALLOWED_HOSTS,
-        ROOT_URLCONF=__name__,
+        ROOT_URLCONF=app,
         DATABASES=DATABASES,
         MIGRATION_MODULES={APP_LABEL: 'migrations'},
         INSTALLED_APPS=(
@@ -66,11 +106,14 @@ class Task(models.Model):
         db_table = 'task'
 
 
+@app.route(r'^tasks/$', methods=['GET'])
 def _all(request):
     tasks = Task.objects.filter(session_id=request.session.session_key)
     return JsonResponse({task.id: {'body': task.body, 'title': task.title, 'active': task.is_active} for task in tasks})
 
 
+@app.route(r'^tasks/$', methods=['POST'])
+@app.route(r'^tasks/add/$', methods=['POST'])
 def add(request):
     if request.POST:
         task = Task(
@@ -83,20 +126,13 @@ def add(request):
     return HttpResponseNotAllowed([])
 
 
+@app.route(r'^tasks/(?P<id>\d+)/$', methods=['GET'])
 def detail(request, id):
     task = get_object_or_404(Task, id=id, session_id=request.session.session_key)
     return JsonResponse({'body': task.body, 'title': task.title, 'active': task.is_active})
 
-urlpatterns = (
-    url(r'^$', lambda r: JsonResponse({'App with model2': 'task'})),
-    url(r'^tasks/$', _all),
-    url(r'^tasks/add/$', add),
-    url(r'^tasks/(?P<id>\d+)/$', detail),
-)
-
 
 application = get_wsgi_application()
-
 
 if __name__ == "__main__":
 

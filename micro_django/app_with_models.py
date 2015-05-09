@@ -8,7 +8,6 @@ from django.conf.urls import url
 from django.core.wsgi import get_wsgi_application
 from django.http import JsonResponse, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404
-
 from django.db import models
 
 
@@ -40,7 +39,7 @@ if not settings.configured:
         MIDDLEWARE_CLASSES=(
             'django.contrib.sessions.middleware.SessionMiddleware',
             'django.middleware.common.CommonMiddleware',
-            # 'django.middleware.csrf.CsrfViewMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
             'django.middleware.clickjacking.XFrameOptionsMiddleware',
         ),
     )

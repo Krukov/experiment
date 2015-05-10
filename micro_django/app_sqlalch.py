@@ -102,7 +102,7 @@ def detail(request, id):
 
 
 urlpatterns = (
-    url(r'^$', lambda r: JsonResponse({'App': 'peewee'})),
+    url(r'^$', lambda r: JsonResponse({'App': 'sqlalchemy'})),
     url(r'^tasks/$', _all),
     url(r'^tasks/add/$', add),
     url(r'^tasks/(?P<id>\d+)/$', detail),

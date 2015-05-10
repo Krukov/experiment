@@ -97,7 +97,7 @@ def detail(request, id):
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', lambda r: JsonResponse({'App': 'django ORM', 'omg': 'Stupid django ORM. It is so slowwwwww'})),
+    url(r'^$', lambda r: JsonResponse({'App': 'ADMIN'})),
     url(r'^tasks/$', _all),
     url(r'^tasks/add/$', add),
     url(r'^tasks/(?P<id>\d+)/$', detail),

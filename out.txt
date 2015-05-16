@@ -1,0 +1,104 @@
+find django -name "*.py" | xargs cloc
+
+     702 text files.
+     677 unique files.                                          
+     134 files ignored.
+
+http://cloc.sourceforge.net v 1.60  T=5.43 s (124.8 files/s, 21324.4 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                         677          17216          24891          73593
+
+find flask/ -name "*.py" | xargs cloc
+      57 text files.
+      52 unique files.                              
+       6 files ignored.
+
+http://cloc.sourceforge.net v 1.60  T=0.50 s (104.1 files/s, 20318.0 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                          52           1677           2552           5921
+
+
+
+
+find flask/ -name "*.py" | xargs cloc
+      57 text files.
+      52 unique files.                              
+       6 files ignored.
+
+http://cloc.sourceforge.net v 1.60  T=0.50 s (104.1 files/s, 20318.0 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                          52           1677           2552           5921
+
+
+find jinja2/ -name "*.py" | xargs cloc
+      39 text files.
+      39 unique files.                              
+       1 file ignored.
+
+http://cloc.sourceforge.net v 1.60  T=0.58 s (66.7 files/s, 24357.8 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                          39           2379           2846           9021
+
+
+find werkzeug/ -name "*.py" | xargs cloc
+      38 text files.
+      38 unique files.                              
+       0 files ignored.
+
+http://cloc.sourceforge.net v 1.60  T=1.02 s (37.2 files/s, 19309.9 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                          38           3360           5737          10602
+
+
+find sqlalchemy/ -name "*.py" | xargs cloc
+     181 text files.
+     180 unique files.                                          
+       1 file ignored.
+
+http://cloc.sourceforge.net v 1.60  T=3.82 s (47.1 files/s, 26891.9 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                         180          22417          29669          50672
+
+
+/site-packages$ du -sh *
+148K	bottle.py
+38M	django
+1,4M	flask
+32K	itsdangerous.py
+1,8M	jinja2
+28K	_markerlib
+92K	markupsafe
+7,7M	sqlalchemy
+1,8M	werkzeug
+
+du -sh django/*
+68K	django/apps
+16K	django/bin
+5,9M	django/conf
+25M	django/contrib
+1,5M	django/core
+2,8M	django/db
+68K	django/dispatch
+424K	django/forms
+164K	django/http
+4,0K	django/__init__.py
+104K	django/middleware
+16K	django/__pycache__
+8,0K	django/shortcuts.py
+544K	django/template
+104K	django/templatetags
+272K	django/test
+932K	django/utils
+396K	django/views

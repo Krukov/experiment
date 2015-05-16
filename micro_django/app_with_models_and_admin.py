@@ -71,8 +71,7 @@ class Task(models.Model):
         db_table = 'task'
 
 from django.contrib import admin
-admin.register(Task)(admin.ModelAdmin)
-
+admin.site.register(Task)
 
 def _all(request):
     tasks = Task.objects.filter(session_id=request.session.session_key)

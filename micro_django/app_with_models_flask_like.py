@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 
 import os
 import sys
@@ -81,6 +81,7 @@ if not settings.configured:
         ROOT_URLCONF=app,
         DATABASES=DATABASES,
         MIGRATION_MODULES={APP_LABEL: 'migrations'},
+        SESSION_ENGINE='django.contrib.sessions.backends.signed_cookies',
         INSTALLED_APPS=(
             'django.contrib.sessions',
             '__main__.app',

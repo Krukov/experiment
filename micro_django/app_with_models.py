@@ -63,7 +63,7 @@ apps.populate(settings.INSTALLED_APPS)
 
 
 class Task(models.Model):
-    __module__ = '__main__'
+    __module__ = '__main__'  # for manage shell 
     title = models.CharField(max_length=255)
     body = models.TextField(max_length=255)
     session_id = models.CharField(max_length=255)

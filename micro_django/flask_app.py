@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+import uuid
 from sqlite3 import dbapi2 as sqlite3
-from flask import Flask, request, g, abort, jsonify
+
+from flask import Flask, request, g, abort, jsonify, session
 
 
 app = Flask(__name__)
@@ -22,28 +24,28 @@ def connect_db():
 
 
 def init_db():
-    db = get_db()
+    db = connect_db()
     with app.open_resource('schema.sql', mode='r') as f:
         db.cursor().executescript(f.read())
     db.commit()
 
 
-def get_db():
-    if not hasattr(g, 'sqlite_db'):
-        g.sqlite_db = connect_db()
-    return g.sqlite_db
+@app.before_request
+def before_request():
+    session.setdefault('id', str(uuid.uuid4()))
+    g.db = connect_db()
 
 
 @app.teardown_appcontext
-def close_db(error):
-    if hasattr(g, 'sqlite_db'):
-        g.sqlite_db.close()
+def teardown_appcontext(error):
+    if hasattr(g, 'db'):
+        g.db.close()
 
 
 @app.route('/tasks', methods=['GET'])
 def _all():
-    db = get_db()
-    cur = db.execute('SELECT * FROM task WHERE task.session_id=$1 order by id desc', [request.cookies['session'], ])
+    cur = g.db.execute('SELECT * FROM task WHERE task.session_id=$1 order by id desc',
+                       [session.get('id'), ])
     tasks = cur.fetchall()
     return jsonify(**{str(task['id']): {'body': task['body'], 'title': task['title'], 'active': task['is_active']}
                       for task in tasks})
@@ -52,17 +54,15 @@ def _all():
 @app.route('/tasks/add', methods=['POST'])
 def add():
     data = request.form
-    db = get_db()
-    db.execute('INSERT INTO task (title, body, session_id, is_active) VALUES ($1, $2, $3, 1)',
-               [data.get('title'), data.get('body'), 'a'])
-    db.commit()
+    g.db.execute('INSERT INTO task (title, body, session_id, is_active) VALUES ($1, $2, $3, 1)',
+                 [data.get('title'), data.get('body'), session.get('id')])
+    g.db.commit()
     return jsonify(success='ok')
 
 
 @app.route('/tasks/<id>', methods=['GET'])
 def detail(id):
-    db = get_db()
-    task = db.execute('SELECT * from task WHERE session_id=$1 AND id=$2 LIMIT 1', [request.cookies['session'], id]).fetchall()
+    task = g.db.execute('SELECT * from task WHERE session_id=$1 AND id=$2 LIMIT 1', [session.get('id'), id]).fetchall()
 
     if task:
         task = task.pop()

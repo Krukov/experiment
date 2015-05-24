@@ -9,47 +9,33 @@ from django.conf.urls import url
 from django.core.wsgi import get_wsgi_application
 
 
-DEBUG = os.environ.get('DEBUG', 'on') == 'on'
-
-SECRET_KEY = os.environ.get('SECRET_KEY', os.urandom(32))
-
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.db',
-    }
-}
-
-settings.configure(
-    DEBUG=DEBUG,
-    SECRET_KEY=SECRET_KEY,
-    ALLOWED_HOSTS=ALLOWED_HOSTS,
-    ROOT_URLCONF=__name__,
-    DATABASES=DATABASES,
-    INSTALLED_APPS=(
-        'django.contrib.sessions',
-    ),
-    MIDDLEWARE_CLASSES=(
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    ),
-)
+if not settings.configured:
+    settings.configure(
+        DEBUG=os.environ.get('DEBUG', 'on') == 'on',
+        SECRET_KEY=os.environ.get('SECRET_KEY', 'INSECURE'),
+        ALLOWED_HOSTS=os.environ.get('ALLOWED_HOSTS', 'localhost').split(','),
+        ROOT_URLCONF=__name__,
+        DATABASES={'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'db.db',
+            }
+        },
+        INSTALLED_APPS=(
+            'django.contrib.sessions',
+        ),
+        MIDDLEWARE_CLASSES=(
+            'django.contrib.sessions.middleware.SessionMiddleware',
+        ),
+    )
 
 urlpatterns = (
-    url(r'^$', lambda r: JsonResponse({'simple app must be': 'simple'})),
+    url(r'^$', lambda r: JsonResponse({'A simple app must be': 'simple'})),
 )
-
 
 application = get_wsgi_application()
 
 
 if __name__ == "__main__":
-
     from django.core.management import execute_from_command_line
-
     execute_from_command_line(sys.argv)
 

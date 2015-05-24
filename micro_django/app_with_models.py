@@ -45,11 +45,11 @@ if not settings.configured:
     )
 
 
-from django.apps import apps
-apps.populate(settings.INSTALLED_APPS)
+# from django.apps import apps
+# apps.populate(settings.INSTALLED_APPS)
 # -1 We are pre-loading apps, it is necessary to
 #  after this
-# >python app_with_models.py migrate'
+# >python app_with_models.py syncdb'
 # Operations to perform:
 #   Synchronize unmigrated apps: __main__
 #   ...
@@ -57,7 +57,7 @@ apps.populate(settings.INSTALLED_APPS)
 # Migrations for '__main__':
 #   0001_initial.py:
 #     - Create model Task
-#  but then when we are run migrate there are nothing happens
+#  but then when we are run syncdb there are nothing happens
 # Ok ... adding MIGRATION_MODULES at setting configure
 # SUCCESS   Applying __main__.0001_initial... OK
 
@@ -95,7 +95,7 @@ def detail(request, id):
     return JsonResponse({'body': task.body, 'title': task.title, 'active': task.is_active})
 
 urlpatterns = (
-    url(r'^$', lambda r: JsonResponse({'App': 'django ORM', 'omg': 'Stupid django ORM. It is so slowwwwww'})),
+    url(r'^$', lambda r: JsonResponse({'App': 'django ORM'})),
     url(r'^tasks/$', _all),
     url(r'^tasks/add/$', add),
     url(r'^tasks/(?P<id>\d+)/$', detail),

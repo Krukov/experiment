@@ -14,11 +14,11 @@ from django.apps.config import AppConfig
 APP_LABEL = 'my_app'
 
 
-class app(AppConfig):
-    name = '__main__'
+class App(AppConfig):
     verbose_name = 'Main'
     label = APP_LABEL
 
+app = App('name', sys.modules[__name__])
 
 DEBUG = os.environ.get('DEBUG', 'on') == 'on'
 
@@ -43,7 +43,7 @@ if not settings.configured:
         MIGRATION_MODULES={APP_LABEL: 'migrations'},
         INSTALLED_APPS=(
             'django.contrib.sessions',
-            '__main__.app',
+            app,
         ),
         MIDDLEWARE_CLASSES=(
             'django.contrib.sessions.middleware.SessionMiddleware',

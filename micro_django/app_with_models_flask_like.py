@@ -14,10 +14,13 @@ from django.views.decorators.http import require_http_methods
 from django.db import models
 from django.apps.config import AppConfig
 
+import __main__
+
+
 APP_LABEL = 'my_app'
 
 
-class cached_classproperty(object):
+class cached_property(object):
     def __init__(self, method):
         self.method = method
         self.cache = None
@@ -28,15 +31,14 @@ class cached_classproperty(object):
         return self.cache
 
 
-class app(AppConfig):
-    name = '__main__'
+class App(AppConfig):
     verbose_name = 'Main'
     label = APP_LABEL
     _urlpatterns = OrderedDict()
 
     do_not_call_in_templates = True
 
-    @cached_classproperty
+    @cached_property
     def urlpatterns(cls):
         res = []
         for pattern, methods in cls._urlpatterns.items():
@@ -59,6 +61,8 @@ class app(AppConfig):
                 cls.add(regex, view, name, method)
             return view
         return decor
+
+app = App('name', __main__)
 
 DEBUG = os.environ.get('DEBUG', 'on') == 'on'
 
@@ -84,7 +88,7 @@ if not settings.configured:
         SESSION_ENGINE='django.contrib.sessions.backends.signed_cookies',
         INSTALLED_APPS=(
             'django.contrib.sessions',
-            '__main__.app',
+            app,
         ),
         MIDDLEWARE_CLASSES=(
             'django.contrib.sessions.middleware.SessionMiddleware',
